@@ -5,16 +5,15 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.kafka.annotation.EnableKafka;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.core.*;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,15 +25,6 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 @EnableKafka
 public class Config {
-//
-//    @Autowired
-//    private KafkaProperties.Listener listener;
-//
-//    @Autowired
-//    private KafkaTemplate<Integer, String> template;
-
-    @Autowired
-    private KafkaAdmin admin;
 
     @Value("${kafka.broker.server}")
     private String brokerServer;
@@ -42,19 +32,11 @@ public class Config {
     @Value("${kafka.consumer.default.group_id}")
     private String consumerDefaultGroupID;
 
-    @Bean
-    ConcurrentKafkaListenerContainerFactory<Integer, String>
-    kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<Integer, String> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
-        return factory;
-    }
+    @Value("${app.consumer.pool.size}")
+    private int poolSize;
 
-    @Bean
-    public ConsumerFactory<Integer, String> consumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(consumerConfigs());
-    }
+    @Value("${app.consumer.pool.max-size}")
+    private int maxPoolSize;
 
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -70,11 +52,6 @@ public class Config {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerDefaultGroupID);
         return props;
-    }
-
-    @Bean
-    public KafkaProperties.Listener listener() {
-        return new KafkaProperties.Listener();
     }
 
     @Bean
@@ -98,7 +75,7 @@ public class Config {
 
     @Bean
     public ExecutorService executorService() {
-        return new ThreadPoolExecutor(5, 5, 0L, TimeUnit.MILLISECONDS,
+        return new ThreadPoolExecutor(poolSize, maxPoolSize, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>());
     }
 
