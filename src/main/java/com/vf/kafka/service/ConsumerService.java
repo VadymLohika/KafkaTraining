@@ -17,9 +17,6 @@ import java.util.concurrent.ExecutorService;
 @Component
 public class ConsumerService {
 
-//    @Autowired
-//    private KafkaConsumer<String, String> consumer;
-
     @Autowired
     private ConsumerProvider consumerProvider;
 
