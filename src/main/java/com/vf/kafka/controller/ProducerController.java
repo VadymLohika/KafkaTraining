@@ -28,7 +28,7 @@ public class ProducerController {
     @Autowired
     ResourceLoader resourceLoader;
 
-    @RequestMapping(path = "/sendMessage/{topicName}")
+    @RequestMapping(path = "/sendMessage/topicName/{topicName}")
     public void produceMessages(@PathVariable("topicName") String topicName) {
         getMessagesFromCSV().forEach(message -> kafkaTemplate.send(topicName, message[0], message[1]));
     }
