@@ -39,6 +39,8 @@ public class ProducerController {
             return entries;
         }
         try {
+
+            // Using csv file as a source of messages
             File file = new File(
                     getClass().getClassLoader().getResource("messages_source.csv").getFile()
             );

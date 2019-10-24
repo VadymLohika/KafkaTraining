@@ -64,6 +64,8 @@ public class ConsumerService {
                 while (true) {
                     ConsumerRecords<String, String> records = consumer.poll(Duration.of(10, ChronoUnit.SECONDS));
                     for (ConsumerRecord<String, String> record : records) {
+
+                        //Currently just logging it in console
                         StringBuilder stringBuffer = new StringBuilder();
                         stringBuffer.append("Consumer -  ");
                         stringBuffer.append(consumerCounter);
